@@ -1,0 +1,520 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cálculo del IIVTNU Ayuntamiento de Manises</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        /* Estilos base y configuración de Tailwind */
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #e0f2fe 0%, #bae6fd 100%); /* Tonos azules claros */
+        }
+        .input-error-message {
+             color: #dc2626; /* Rojo de Tailwind */
+             font-size: 0.875rem; /* text-sm */
+             margin-top: 0.25rem; /* mt-1 */
+             min-height: 1.25rem; /* Equivalente a text-sm line-height */
+        }
+        input.error {
+            border-color: #dc2626; /* border-red-600 */
+            background-color: #fee2e2; /* bg-red-50 */
+        }
+        input[type=number]::-webkit-inner-spin-button,
+        input[type=number]::-webkit-outer-spin-button {
+          -webkit-appearance: none;
+          margin: 0;
+        }
+        input[type=number] {
+          -moz-appearance: textfield; /* Firefox */
+        }
+        /* Clase para resaltar el método elegido */
+        .chosen-method {
+            border-width: 2px;
+            /* Usaremos un azul más neutro para el resaltado que funcione con ambos fondos */
+            border-color: #3b82f6; /* blue-500 */
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.4); /* Sombra tipo ring azul */
+            transform: scale(1.01); /* Ligero aumento para destacar */
+        }
+        /* Estilos para impresión */
+        @media print {
+            body {
+                background: white !important; color: black; font-size: 10pt;
+            }
+            .no-print { display: none !important; }
+            .print-container {
+                box-shadow: none !important; border: none !important; padding: 10px !important; max-width: 100% !important;
+            }
+            .print-grid { grid-template-columns: 1fr 1fr !important; gap: 15px !important; }
+            input, .method-box, .conclusion-box {
+                border: 1px solid #ccc !important; background-color: #f8f8f8 !important;
+            }
+            .results-section { display: block !important; }
+             .footer-warning { position: static !important; margin-top: 1rem; font-size: 8pt; text-align: left; }
+             h1, h2, h3 { font-size: 12pt; }
+             .result-amount { font-size: 11pt; }
+             .chosen-method { border: 2px solid black !important; box-shadow: none !important; transform: none !important; } /* Resaltado simple en impresión */
+        }
+    </style>
+</head>
+<body class="min-h-screen p-4 md:p-8 relative pb-20">
+    <div class="container mx-auto max-w-4xl bg-white p-6 md:p-8 rounded-xl shadow-lg print-container">
+
+        <header class="flex items-center gap-4 mb-6 border-b pb-4 no-print">
+  <img src="data:image/jpg;base64,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" />
+            <h1 class="text-2xl md:text-3xl font-bold text-sky-700">
+                Cálculo IIVTNU AytoManises
+            </h1>
+        </header>
+        <h1 class="text-xl font-bold text-black mb-4 hidden print:block">Cálculo IIVTNU AytoManises</h1>
+
+        <form id="plusvaliaForm" onsubmit="event.preventDefault(); calcularPlusvalia();" class="space-y-5">
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-4 print-grid">
+                <div class="form-group">
+                    <label for="fechaAdq" class="block text-sm font-medium text-gray-700 mb-1">Fecha adquisición:</label>
+                    <input type="date" id="fechaAdq" name="fechaAdq" class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-sky-500 focus:border-sky-500" required>
+                    <span id="error-fechaAdq" class="input-error-message"></span>
+                </div>
+                <div class="form-group">
+                    <label for="fechaTrans" class="block text-sm font-medium text-gray-700 mb-1">Fecha transmisión:</label>
+                    <input type="date" id="fechaTrans" name="fechaTrans" class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-sky-500 focus:border-sky-500" required>
+                    <span id="error-fechaTrans" class="input-error-message"></span>
+                </div>
+                <div class="form-group">
+                    <label for="valorCatastralTotal" class="block text-sm font-medium text-gray-700 mb-1">Valor catastral total (€):</label>
+                    <input type="number" id="valorCatastralTotal" name="valorCatastralTotal" step="0.01" min="0" class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-sky-500 focus:border-sky-500" placeholder="Ej: 100000" required>
+                    <span id="error-valorCatastralTotal" class="input-error-message"></span>
+                </div>
+                <div class="form-group md:col-span-2">
+                     <label class="block text-sm font-medium text-gray-700 mb-1">Indicar Valor del Suelo como:</label>
+                     <div class="flex gap-4 items-center">
+                         <label class="inline-flex items-center">
+                             <input type="radio" name="tipoValorSuelo" value="porcentaje" class="form-radio text-sky-600 focus:ring-sky-500" checked onchange="toggleValorSueloInput()">
+                             <span class="ml-2 text-sm text-gray-700">Porcentaje (%)</span>
+                         </label>
+                         <label class="inline-flex items-center">
+                             <input type="radio" name="tipoValorSuelo" value="importe" class="form-radio text-sky-600 focus:ring-sky-500" onchange="toggleValorSueloInput()">
+                             <span class="ml-2 text-sm text-gray-700">Importe Directo (€)</span>
+                         </label>
+                     </div>
+                </div>
+                <div id="inputPorcentaje" class="form-group">
+                    <label for="porcentajeValorSuelo" class="block text-sm font-medium text-gray-700 mb-1">Porcentaje valor del suelo (%):</label>
+                    <input type="number" id="porcentajeValorSuelo" name="porcentajeValorSuelo" step="0.01" min="0" max="100" class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-sky-500 focus:border-sky-500" placeholder="Ej: 40">
+                    <span id="error-porcentajeValorSuelo" class="input-error-message"></span>
+                </div>
+                <div id="inputImporte" class="form-group" style="display: none;">
+                    <label for="importeValorSuelo" class="block text-sm font-medium text-gray-700 mb-1">Importe del valor del suelo (€):</label>
+                    <input type="number" id="importeValorSuelo" name="importeValorSuelo" step="0.01" min="0" class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-sky-500 focus:border-sky-500" placeholder="Ej: 40000">
+                    <span id="error-importeValorSuelo" class="input-error-message"></span>
+                </div>
+                <div class="form-group">
+                    <label for="valorCompra" class="block text-sm font-medium text-gray-700 mb-1">Valor de adquisición/compra (€):</label>
+                    <input type="number" id="valorCompra" name="valorCompra" step="0.01" min="0" class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-sky-500 focus:border-sky-500" placeholder="Ej: 80000" required>
+                    <span id="error-valorCompra" class="input-error-message"></span>
+                </div>
+                <div class="form-group">
+                    <label for="valorVenta" class="block text-sm font-medium text-gray-700 mb-1">Valor de transmisión/venta (€):</label>
+                    <input type="number" id="valorVenta" name="valorVenta" step="0.01" min="0" class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-sky-500 focus:border-sky-500" placeholder="Ej: 120000" required>
+                    <span id="error-valorVenta" class="input-error-message"></span>
+                </div>
+            </div>
+            <div class="flex flex-col sm:flex-row justify-center gap-3 pt-4 no-print">
+                <button type="submit" class="w-full sm:w-auto px-6 py-2.5 bg-sky-600 text-white font-medium text-sm rounded-md shadow-sm hover:bg-sky-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-sky-500 transition duration-150 ease-in-out">
+                    Calcular Plusvalía
+                </button>
+                <button type="button" onclick="imprimirResultados()" class="w-full sm:w-auto px-6 py-2.5 bg-gray-500 text-white font-medium text-sm rounded-md shadow-sm hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-400 transition duration-150 ease-in-out">
+                    Imprimir Resultados
+                </button>
+                <button type="button" onclick="limpiarFormulario()" class="w-full sm:w-auto px-6 py-2.5 bg-gray-200 text-gray-700 font-medium text-sm rounded-md shadow-sm hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-400 transition duration-150 ease-in-out">
+                    Limpiar Formulario
+                </button>
+            </div>
+        </form>
+
+        <div id="resultadosSection" class="mt-8 pt-6 border-t border-gray-200" style="display: none;">
+            <h2 class="text-xl font-semibold text-gray-800 mb-4 text-center">Resultados del Cálculo</h2>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6 print-grid">
+                <div id="boxMetodoObjetivo" class="method-box bg-sky-50 border border-sky-200 rounded-lg p-5 shadow-sm transition-all duration-300">
+                    <h3 class="text-lg font-semibold text-sky-700 mb-3 border-b border-sky-300 pb-1">Método Objetivo</h3>
+                    <div class="space-y-2 text-sm">
+                        <p><span class="font-medium text-gray-700 w-40 inline-block">Periodo (años):</span> <span id="resObj-anos" class="text-gray-600"></span></p>
+                        <p><span class="font-medium text-gray-700 w-40 inline-block">Periodo (meses):</span> <span id="resObj-meses" class="text-gray-600"></span></p>
+                        <p><span class="font-medium text-gray-700 w-40 inline-block">Valor catastral suelo:</span> <span id="resObj-valorSuelo" class="text-gray-600 font-mono"></span></p>
+                        <p class="text-xs text-gray-500 ml-2" id="resObj-valorSuelo-formula"></p>
+                        <p><span class="font-medium text-gray-700 w-40 inline-block">Coeficiente aplicable:</span> <span id="resObj-coeficiente" class="text-gray-600 font-mono"></span></p>
+                        <p class="text-xs text-gray-500 ml-2" id="resObj-coeficiente-info"></p>
+                        <p><span class="font-medium text-gray-700 w-40 inline-block">Base Imponible:</span> <span id="resObj-baseImponible" class="text-gray-600 font-mono"></span></p>
+                        <p class="text-xs text-gray-500 ml-2" id="resObj-baseImponible-formula"></p>
+                        <p class="mt-3 pt-2 border-t border-sky-200"><span class="font-semibold text-sky-800 w-40 inline-block">Cuota Íntegra:</span> <span id="resObj-cuota" class="text-sky-800 font-bold text-base font-mono"></span></p>
+                    </div>
+                </div>
+                <div id="boxMetodoReal" class="method-box bg-emerald-50 border border-emerald-200 rounded-lg p-5 shadow-sm transition-all duration-300">
+                    <h3 class="text-lg font-semibold text-emerald-700 mb-3 border-b border-emerald-300 pb-1">Método Real (Ganancia)</h3>
+                     <div class="space-y-2 text-sm">
+                        <p><span class="font-medium text-gray-700 w-40 inline-block">Valor transmisión:</span> <span id="resReal-valorVenta" class="text-gray-600 font-mono"></span></p>
+                        <p><span class="font-medium text-gray-700 w-40 inline-block">Valor adquisición:</span> <span id="resReal-valorCompra" class="text-gray-600 font-mono"></span></p>
+                        <p><span class="font-medium text-gray-700 w-40 inline-block">Incremento total:</span> <span id="resReal-incrementoTotal" class="text-gray-600 font-mono"></span></p>
+                        <p class="text-xs text-gray-500 ml-2" id="resReal-incrementoTotal-formula"></p>
+                        <p><span class="font-medium text-gray-700 w-40 inline-block">Proporción suelo (%):</span> <span id="resReal-porcentajeSuelo" class="text-gray-600 font-mono"></span></p>
+                        <p><span class="font-medium text-gray-700 w-40 inline-block">Base Imponible:</span> <span id="resReal-baseImponible" class="text-gray-600 font-mono"></span></p>
+                        <p class="text-xs text-gray-500 ml-2" id="resReal-baseImponible-formula"></p>
+                        <p class="mt-3 pt-2 border-t border-emerald-200"><span class="font-semibold text-emerald-800 w-40 inline-block">Cuota Íntegra:</span> <span id="resReal-cuota" class="text-emerald-800 font-bold text-base font-mono"></span></p>
+                    </div>
+                </div>
+            </div>
+
+            <div id="conclusionBox" class="conclusion-box mt-6 p-4 rounded-md text-center text-base transition-colors duration-300">
+                <strong id="conclusionTitulo" class="block text-lg mb-1"></strong>
+                <span id="conclusionTexto"></span>
+                <span id="conclusionMetodoInfo" class="block text-sm mt-2"></span> </div>
+
+            <div class="mt-6 p-4 bg-gray-100 border border-gray-200 rounded-md text-center text-xs text-gray-600 no-print">
+                <strong>Nota:</strong> Este cálculo es una simulación meramente informativa basada en los datos introducidos y la normativa vigente del Ayuntamiento de Manises. No tiene carácter vinculante y no sustituye a la liquidación oficial. Pueden existir bonificaciones o exenciones no contempladas. Verifique los datos y consulte la ordenanza fiscal municipal en el siguiente link https://www.manises.es/sites/www.manises.es/files/files/Documentacion/ordenanzas/hacienda/tributaria/cas/2025/1-ordenanza-en-vigor-23-1-2025.pdf
+            </div>
+        </div>
+    </div>
+    <footer class="footer-warning absolute bottom-4 left-4 text-xs italic text-gray-500 no-print">
+        Advertencia: Los cálculos presentados tienen carácter meramente informativo y no generan obligación alguna para la administración.
+    </footer>
+
+    <script>
+        // --- Configuración ---
+        const TIPO_GRAVAMEN = 0.28; // 28% (Verificar Ordenanza Fiscal Manises)
+        const COEFICIENTES_POR_ANO = {
+             1: 0.15, 2: 0.14, 3: 0.14, 4: 0.16, 5: 0.18,
+             6: 0.19, 7: 0.20, 8: 0.19, 9: 0.15, 10: 0.12,
+             11: 0.10, 12: 0.09, 13: 0.09, 14: 0.09, 15: 0.09,
+             16: 0.10, 17: 0.13, 18: 0.17, 19: 0.23, 20: 0.40
+        };
+        const COEFICIENTE_MAXIMO = 0.40; // Para 20 años o más
+        // Fecha mínima para la cual tenemos coeficientes (¡IMPORTANTE!)
+        const FECHA_MINIMA_TRANSMISION = new Date(2024, 0, 1); // 1 de Enero de 2024 (Mes es 0-indexado)
+
+        // --- Elementos del DOM ---
+        const form = document.getElementById('plusvaliaForm');
+        const resultadosSection = document.getElementById('resultadosSection');
+        const conclusionBox = document.getElementById('conclusionBox');
+        const conclusionMetodoInfo = document.getElementById('conclusionMetodoInfo');
+        const inputPorcentajeDiv = document.getElementById('inputPorcentaje');
+        const inputImporteDiv = document.getElementById('inputImporte');
+        const porcentajeValorSueloInput = document.getElementById('porcentajeValorSuelo');
+        const importeValorSueloInput = document.getElementById('importeValorSuelo');
+        const boxMetodoObjetivo = document.getElementById('boxMetodoObjetivo');
+        const boxMetodoReal = document.getElementById('boxMetodoReal');
+
+        // --- Funciones de Utilidad ---
+        function formatEuros(value) {
+             if (value === null || typeof value === 'undefined' || isNaN(value)) return 'N/A';
+             return value.toLocaleString('es-ES', { style: 'currency', currency: 'EUR' });
+        }
+        function formatNumber(value, decimals = 4) {
+            if (value === null || typeof value === 'undefined' || isNaN(value)) return 'N/A';
+            return value.toLocaleString('es-ES', {
+                minimumFractionDigits: decimals, maximumFractionDigits: decimals
+            });
+        }
+        function validateAndParseNumber(inputId, errorId, fieldName, isRequired, allowZero = false, maxValue = null) {
+            const input = document.getElementById(inputId);
+            const errorSpan = document.getElementById(errorId);
+            const valueStr = input.value.trim();
+            errorSpan.textContent = ''; input.classList.remove('error');
+            if (isRequired && valueStr === '') {
+                errorSpan.textContent = `El campo "${fieldName}" es obligatorio.`; input.classList.add('error'); return null;
+            }
+            if (!isRequired && valueStr === '') { return NaN; }
+            const num = parseFloat(valueStr.replace(',', '.'));
+            if (isNaN(num)) {
+                errorSpan.textContent = `Valor inválido en "${fieldName}". Use punto para decimales.`; input.classList.add('error'); return null;
+            }
+            if (!allowZero && num <= 0) {
+                errorSpan.textContent = `"${fieldName}" debe ser mayor que cero.`; input.classList.add('error'); return null;
+            }
+            if (allowZero && num < 0) {
+                 errorSpan.textContent = `"${fieldName}" no puede ser negativo.`; input.classList.add('error'); return null;
+            }
+             if (maxValue !== null && num > maxValue) {
+                 errorSpan.textContent = `"${fieldName}" no puede ser mayor que ${maxValue}.`; input.classList.add('error'); return null;
+             }
+            return num;
+        }
+        function validateAndParseDate(inputId, errorId, fieldName, isRequired) {
+            const input = document.getElementById(inputId);
+            const errorSpan = document.getElementById(errorId);
+            errorSpan.textContent = ''; input.classList.remove('error');
+            if (isRequired && !input.value) {
+                 errorSpan.textContent = `El campo "${fieldName}" es obligatorio.`; input.classList.add('error'); return null;
+            }
+             if (!isRequired && !input.value) { return null; }
+            const date = input.valueAsDate; // Obtiene la fecha como objeto Date
+             // valueAsDate ya devuelve null si es inválido, pero comprobamos por si acaso
+            if (!date || isNaN(date.getTime())) {
+                errorSpan.textContent = `Fecha inválida en "${fieldName}".`; input.classList.add('error'); return null;
+            }
+             // Añadir validación de fecha mínima si es la fecha de transmisión
+             if (inputId === 'fechaTrans') {
+                 // Clonar para evitar modificar la fecha mínima original
+                 const fechaMinimaSinHora = new Date(FECHA_MINIMA_TRANSMISION);
+                 fechaMinimaSinHora.setHours(0, 0, 0, 0); // Asegurar comparación solo por fecha
+
+                 const fechaTransSinHora = new Date(date);
+                 fechaTransSinHora.setHours(0, 0, 0, 0); // Asegurar comparación solo por fecha
+
+                 if (fechaTransSinHora < fechaMinimaSinHora) {
+                     errorSpan.textContent = `Cálculo solo disponible para transmisiones desde ${FECHA_MINIMA_TRANSMISION.toLocaleDateString('es-ES')}.`;
+                     input.classList.add('error');
+                     return null;
+                 }
+             }
+            const year = date.getFullYear();
+            if (year < 1900 || year > 2100) {
+                 errorSpan.textContent = `Año inválido en "${fieldName}" (debe estar entre 1900 y 2100).`; input.classList.add('error'); return null;
+            }
+            return date;
+        }
+        function clearAllErrors() {
+             document.querySelectorAll('.input-error-message').forEach(span => span.textContent = '');
+             document.querySelectorAll('input.error').forEach(input => input.classList.remove('error'));
+        }
+
+        // --- Funciones de Cálculo del Impuesto ---
+        function calcularAnosCompletos(fechaIni, fechaFin) {
+            let anos = fechaFin.getFullYear() - fechaIni.getFullYear();
+            const mesIni = fechaIni.getMonth(); const diaIni = fechaIni.getDate();
+            const mesFin = fechaFin.getMonth(); const diaFin = fechaFin.getDate();
+            if (mesFin < mesIni || (mesFin === mesIni && diaFin < diaIni)) { anos--; }
+            return Math.max(0, anos);
+        }
+        function calcularMesesCompletos(fechaIni, fechaFin) {
+            let meses = (fechaFin.getFullYear() - fechaIni.getFullYear()) * 12;
+            meses -= fechaIni.getMonth(); meses += fechaFin.getMonth();
+            if (fechaFin.getDate() < fechaIni.getDate()) { meses--; }
+            return Math.max(0, meses);
+        }
+        function getCoeficienteAplicable(anosCompletos) {
+            let coeficiente; let info = '';
+            if (anosCompletos >= 20) {
+                coeficiente = COEFICIENTE_MAXIMO;
+                info = `Aplicado coeficiente máximo (${formatNumber(coeficiente)}) por ${anosCompletos} años (≥ 20).`;
+            } else if (anosCompletos > 0) {
+                coeficiente = COEFICIENTES_POR_ANO[anosCompletos];
+                 if (typeof coeficiente === 'undefined') {
+                     console.error(`Error: Coeficiente no definido para ${anosCompletos} años.`); coeficiente = 0;
+                     info = `Error: Coeficiente no encontrado para ${anosCompletos} años.`;
+                 } else { info = `Coeficiente para ${anosCompletos} años (${formatNumber(coeficiente)}).`; }
+            } else {
+                coeficiente = 0; info = 'Periodo inferior a 1 año, no sujeto por método objetivo (coeficiente 0).';
+            }
+            return { valor: Math.max(0, coeficiente), info: info };
+        }
+
+        // --- Funciones de Interfaz (UI) ---
+        function toggleValorSueloInput() {
+            const tipoSeleccionado = document.querySelector('input[name="tipoValorSuelo"]:checked').value;
+            if (tipoSeleccionado === 'porcentaje') {
+                inputPorcentajeDiv.style.display = 'block'; inputImporteDiv.style.display = 'none';
+                importeValorSueloInput.value = ''; porcentajeValorSueloInput.required = true; importeValorSueloInput.required = false;
+            } else {
+                inputPorcentajeDiv.style.display = 'none'; inputImporteDiv.style.display = 'block';
+                porcentajeValorSueloInput.value = ''; porcentajeValorSueloInput.required = false; importeValorSueloInput.required = true;
+            }
+            if (resultadosSection.style.display !== 'none') { limpiarResultadosVisibles(); }
+        }
+        function limpiarResultadosVisibles() {
+             resultadosSection.style.display = 'none';
+             const idsLimpiar = [
+                 'resObj-anos', 'resObj-meses', 'resObj-valorSuelo', 'resObj-valorSuelo-formula', 'resObj-coeficiente', 'resObj-coeficiente-info', 'resObj-baseImponible', 'resObj-baseImponible-formula', 'resObj-cuota',
+                 'resReal-valorVenta', 'resReal-valorCompra', 'resReal-incrementoTotal', 'resReal-incrementoTotal-formula', 'resReal-porcentajeSuelo', 'resReal-baseImponible', 'resReal-baseImponible-formula', 'resReal-cuota',
+                 'conclusionTitulo', 'conclusionTexto', 'conclusionMetodoInfo'
+             ];
+             idsLimpiar.forEach(id => { const el = document.getElementById(id); if (el) el.textContent = ''; });
+             // Resetear clases de la caja de conclusión y quitar resaltado
+             conclusionBox.className = 'conclusion-box mt-6 p-4 rounded-md text-center text-base transition-colors duration-300';
+             boxMetodoObjetivo.classList.remove('chosen-method');
+             boxMetodoReal.classList.remove('chosen-method');
+        }
+        function limpiarFormulario() {
+            form.reset(); clearAllErrors(); limpiarResultadosVisibles(); toggleValorSueloInput();
+        }
+
+        function actualizarResultadosUI(data) {
+            // Rellenar datos (igual que antes)
+            document.getElementById('resObj-anos').textContent = `${data.anosCompletos} años`;
+            document.getElementById('resObj-meses').textContent = `${data.mesesCompletos} meses`;
+            document.getElementById('resObj-valorSuelo').textContent = formatEuros(data.valorCatastralSuelo);
+            document.getElementById('resObj-valorSuelo-formula').textContent = data.valorSueloFormula;
+            document.getElementById('resObj-coeficiente').textContent = formatNumber(data.coeficiente.valor);
+            document.getElementById('resObj-coeficiente-info').textContent = data.coeficiente.info;
+            document.getElementById('resObj-baseImponible').textContent = formatEuros(data.baseImponibleObjetiva);
+            document.getElementById('resObj-baseImponible-formula').textContent = `(${formatEuros(data.valorCatastralSuelo)} × ${formatNumber(data.coeficiente.valor)})`;
+            document.getElementById('resObj-cuota').textContent = formatEuros(data.cuotaObjetiva);
+            document.getElementById('resReal-valorVenta').textContent = formatEuros(data.valorVenta);
+            document.getElementById('resReal-valorCompra').textContent = formatEuros(data.valorCompra);
+            document.getElementById('resReal-incrementoTotal').textContent = formatEuros(data.incrementoPatrimonialTotal);
+             document.getElementById('resReal-incrementoTotal-formula').textContent = `(${formatEuros(data.valorVenta)} - ${formatEuros(data.valorCompra)})`;
+            document.getElementById('resReal-porcentajeSuelo').textContent = `${formatNumber(data.porcentajeSueloReal, 2)}%`;
+            document.getElementById('resReal-baseImponible').textContent = formatEuros(data.baseImponibleReal);
+             document.getElementById('resReal-baseImponible-formula').textContent = `(${formatEuros(data.incrementoPatrimonialTotal)} × ${formatNumber(data.porcentajeSueloReal, 2)}%)`;
+            document.getElementById('resReal-cuota').textContent = formatEuros(data.cuotaReal);
+
+            // Conclusión y resaltado
+            // Resetear clases base y quitar colores previos
+            conclusionBox.className = 'conclusion-box mt-6 p-4 rounded-md text-center text-base transition-colors duration-300';
+            boxMetodoObjetivo.classList.remove('chosen-method');
+            boxMetodoReal.classList.remove('chosen-method');
+            conclusionMetodoInfo.textContent = '';
+
+            if (data.cuotaFinal <= 0) {
+                document.getElementById('conclusionTitulo').textContent = "No sujeto a Plusvalía";
+                document.getElementById('conclusionTexto').textContent = data.mensajeConclusion;
+                // Aplicar colores de "no sujeto" (amarillo)
+                conclusionBox.classList.add('bg-yellow-100', 'border', 'border-yellow-300', 'text-yellow-800');
+
+                 if (data.metodoAplicado === "Objetivo (resultado 0)") {
+                     boxMetodoObjetivo.classList.add('chosen-method');
+                     conclusionMetodoInfo.textContent = `Se aplica el ${data.metodoAplicado} por ser más beneficioso.`;
+                 } else if (data.metodoAplicado === "Real (resultado 0)") {
+                     boxMetodoReal.classList.add('chosen-method');
+                     conclusionMetodoInfo.textContent = `Se aplica el ${data.metodoAplicado} por ser más beneficioso.`;
+                 } else {
+                      conclusionMetodoInfo.textContent = `Ambos métodos resultan en cuota cero o negativa.`;
+                 }
+
+            } else {
+                document.getElementById('conclusionTitulo').textContent = "Cuota Estimada a Liquidar";
+                document.getElementById('conclusionTexto').textContent = `${formatEuros(data.cuotaFinal)}`;
+
+                // Resaltar método elegido y aplicar colores correspondientes a la conclusión
+                if (data.metodoAplicado === "Método Objetivo") {
+                    boxMetodoObjetivo.classList.add('chosen-method');
+                    // Aplicar colores del método objetivo (azul cielo) a la conclusión
+                    conclusionBox.classList.add('bg-sky-100', 'border', 'border-sky-300', 'text-sky-800');
+                    conclusionMetodoInfo.textContent = `Se escoge el ${data.metodoAplicado} por ser más beneficioso para el contribuyente.`;
+                } else if (data.metodoAplicado === "Método Real") {
+                    boxMetodoReal.classList.add('chosen-method');
+                     // Aplicar colores del método real (verde esmeralda) a la conclusión
+                    conclusionBox.classList.add('bg-emerald-100', 'border', 'border-emerald-300', 'text-emerald-800');
+                    conclusionMetodoInfo.textContent = `Se escoge el ${data.metodoAplicado} por ser más beneficioso para el contribuyente.`;
+                }
+            }
+
+            resultadosSection.style.display = 'block'; // Mostrar resultados
+        }
+        function imprimirResultados() {
+             if (resultadosSection.style.display === 'none') {
+                 alert("Primero debe calcular la plusvalía para poder imprimir los resultados."); return;
+             }
+             window.print();
+        }
+
+        // --- Función Principal de Cálculo ---
+        function calcularPlusvalia() {
+            clearAllErrors(); limpiarResultadosVisibles();
+            let isValid = true;
+
+            // Validaciones
+            const fechaAdq = validateAndParseDate('fechaAdq', 'error-fechaAdq', 'Fecha adquisición', true);
+            // La validación de fecha mínima ya está DENTRO de validateAndParseDate para fechaTrans
+            const fechaTrans = validateAndParseDate('fechaTrans', 'error-fechaTrans', 'Fecha transmisión', true);
+            const valorCatastralTotal = validateAndParseNumber('valorCatastralTotal', 'error-valorCatastralTotal', 'Valor catastral total', true);
+            const valorCompra = validateAndParseNumber('valorCompra', 'error-valorCompra', 'Valor adquisición', true, true);
+            const valorVenta = validateAndParseNumber('valorVenta', 'error-valorVenta', 'Valor transmisión', true, true);
+            const tipoValorSuelo = document.querySelector('input[name="tipoValorSuelo"]:checked').value;
+            let valorSueloInput = NaN; let valorSueloFormula = ''; let valorCatastralSuelo = 0; let porcentajeSueloReal = 0;
+
+            // Validar y calcular valor del suelo (igual que antes)
+            if (tipoValorSuelo === 'porcentaje') {
+                valorSueloInput = validateAndParseNumber('porcentajeValorSuelo', 'error-porcentajeValorSuelo', 'Porcentaje valor suelo', true, false, 100);
+                 if (valorSueloInput === null) isValid = false;
+                 else if (!isNaN(valorSueloInput) && valorCatastralTotal !== null) {
+                     valorCatastralSuelo = valorCatastralTotal * (valorSueloInput / 100);
+                     valorSueloFormula = `(${formatEuros(valorCatastralTotal)} × ${formatNumber(valorSueloInput, 2)}%)`;
+                     porcentajeSueloReal = valorSueloInput;
+                 }
+            } else {
+                valorSueloInput = validateAndParseNumber('importeValorSuelo', 'error-importeValorSuelo', 'Importe valor suelo', true);
+                 if (valorSueloInput === null) isValid = false;
+                 else if (!isNaN(valorSueloInput) && valorCatastralTotal !== null) {
+                     if (valorSueloInput > valorCatastralTotal) {
+                         document.getElementById('error-importeValorSuelo').textContent = 'El importe del suelo no puede ser mayor que el valor catastral total.';
+                         document.getElementById('importeValorSuelo').classList.add('error'); isValid = false;
+                     } else {
+                         valorCatastralSuelo = valorSueloInput; valorSueloFormula = `Importe directo`;
+                         if (valorCatastralTotal > 0) { porcentajeSueloReal = (valorCatastralSuelo / valorCatastralTotal) * 100; }
+                     }
+                 }
+            }
+            // Comprobar nulidad y coherencia de fechas (la validación de fecha mínima ya se hizo en validateAndParseDate)
+            if (!fechaAdq || !fechaTrans || valorCatastralTotal === null || valorCompra === null || valorVenta === null) { isValid = false; }
+            if (fechaAdq && fechaTrans && fechaTrans <= fechaAdq) {
+                // Asegurarse de que el error de fecha mínima no sobreescriba este
+                if (!document.getElementById('error-fechaTrans').textContent) {
+                     document.getElementById('error-fechaTrans').textContent = 'La fecha de transmisión debe ser posterior a la de adquisición.';
+                     document.getElementById('fechaTrans').classList.add('error');
+                }
+                isValid = false;
+            }
+            if (!isValid) { console.warn("Validación fallida."); return; }
+
+            // --- Cálculos ---
+            const anosCompletos = calcularAnosCompletos(fechaAdq, fechaTrans);
+            const mesesCompletos = calcularMesesCompletos(fechaAdq, fechaTrans);
+            const coeficiente = getCoeficienteAplicable(anosCompletos);
+            const baseImponibleObjetiva = valorCatastralSuelo * coeficiente.valor;
+            const cuotaObjetiva = Math.max(0, baseImponibleObjetiva * TIPO_GRAVAMEN);
+            const incrementoPatrimonialTotal = valorVenta - valorCompra;
+            let baseImponibleReal = 0; let cuotaReal = 0; let mensajeConclusion = ''; let metodoAplicado = '';
+
+             if (incrementoPatrimonialTotal <= 0) {
+                 baseImponibleReal = 0; cuotaReal = 0;
+                 mensajeConclusion = "No existe incremento de valor según la diferencia entre valor de transmisión y adquisición.";
+             } else {
+                 baseImponibleReal = incrementoPatrimonialTotal * (porcentajeSueloReal / 100);
+                 cuotaReal = Math.max(0, baseImponibleReal * TIPO_GRAVAMEN);
+             }
+
+            // Determinar Cuota Final
+             let cuotaFinal = 0;
+             if (cuotaObjetiva <= 0 && cuotaReal <= 0) {
+                 cuotaFinal = 0;
+                 if (incrementoPatrimonialTotal <= 0 && coeficiente.valor <= 0) { mensajeConclusion = "No existe incremento de valor demostrable por ninguno de los métodos."; }
+                 else if (coeficiente.valor <= 0) { mensajeConclusion = "No sujeto por método objetivo (periodo < 1 año o coeficiente 0)."; }
+                 else if (incrementoPatrimonialTotal <= 0) { mensajeConclusion = "No existe incremento de valor según la diferencia entre valor de transmisión y adquisición."; }
+                 metodoAplicado = "Ninguno";
+             } else if (cuotaObjetiva <= 0) {
+                 cuotaFinal = 0; mensajeConclusion = "No sujeto (Base Imponible Objetiva es 0 o negativa).";
+                 metodoAplicado = "Objetivo (resultado 0)";
+             } else if (cuotaReal <= 0) {
+                 cuotaFinal = 0; mensajeConclusion = "No sujeto (Inexistencia de incremento de valor real).";
+                 metodoAplicado = "Real (resultado 0)";
+             } else {
+                 cuotaFinal = Math.min(cuotaObjetiva, cuotaReal);
+                 metodoAplicado = cuotaFinal === cuotaObjetiva ? "Método Objetivo" : "Método Real";
+             }
+
+            // --- Preparar datos para UI ---
+            const dataForUI = {
+                anosCompletos, mesesCompletos, valorCatastralTotal,
+                porcentajeSuelo: tipoValorSuelo === 'porcentaje' ? valorSueloInput : porcentajeSueloReal,
+                valorCatastralSuelo, valorSueloFormula, coeficiente,
+                baseImponibleObjetiva: Math.max(0, baseImponibleObjetiva), cuotaObjetiva,
+                valorVenta, valorCompra, incrementoPatrimonialTotal, porcentajeSueloReal,
+                baseImponibleReal: Math.max(0, baseImponibleReal), cuotaReal,
+                cuotaFinal, metodoAplicado, mensajeConclusion
+            };
+
+            // --- Actualizar UI ---
+            actualizarResultadosUI(dataForUI);
+        }
+
+        // Inicializar
+        document.addEventListener('DOMContentLoaded', toggleValorSueloInput);
+    </script>
+</body>
+</html>
